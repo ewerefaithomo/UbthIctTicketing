@@ -1,0 +1,214 @@
+﻿@model UbthIctTicketing.Models.Incident
+
+@{
+    ViewData["Title"] = "Report ICT Incident";
+}
+
+<div class="row justify-content-center mt-4">
+    <div class="col-md-8">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-danger text-white">
+                <h4 class="mb-0">🔴 Log New ICT Incident</h4>
+            </div>
+            <div class="card-body">
+                <form asp-action="Create" method="post" enctype="multipart/form-data">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="row mb-3">
+                        <!-- Department Combo Box (Select List) -->
+                        <div class="col-md-6">
+                            <label asp-for="Department" class="form-label fw-bold"></label>
+                            <select asp-for="Department" class="form-select" required>
+                                <option value="">-- Select Department / Unit --</option>
+                                <option value="A & E (DENTISTRY)">A & E (DENTISTRY)</option>
+                                <option value="ACCIDENT AND EMERGENCY">ACCIDENT AND EMERGENCY</option>
+                                <option value="ACCOUNT">ACCOUNT</option>
+                                <option value="ADMINISTRATION">ADMINISTRATION</option>
+                                <option value="ANAESTHESIOLOGY">ANAESTHESIOLOGY</option>
+                                <option value="AUDIT">AUDIT</option>
+                                <option value="C.H.C OGBONNA">C.H.C OGBONNA</option>
+                                <option value="C.H.C UDO">C.H.C UDO</option>
+                                <option value="C.T.C.H EKPOMA">C.T.C.H EKPOMA</option>
+                                <option value="CANCER REGISTRY">CANCER REGISTRY</option>
+                                <option value="CATERING">CATERING</option>
+                                <option value="CHEMICAL PATHOLOGY">CHEMICAL PATHOLOGY</option>
+                                <option value="CHILD HEALTH">CHILD HEALTH</option>
+                                <option value="CHILDREN PLAY CENTRE">CHILDREN PLAY CENTRE</option>
+                                <option value="CLINICAL SERVICES">CLINICAL SERVICES</option>
+                                <option value="CMAC'S OFFICE">CMAC'S OFFICE</option>
+                                <option value="CMD'S OFFICE">CMD'S OFFICE</option>
+                                <option value="COLLEGE OF NURSING SCIENCES">COLLEGE OF NURSING SCIENCES</option>
+                                <option value="COMMUNITY DENTISTRY UNIT">COMMUNITY DENTISTRY UNIT</option>
+                                <option value="COMMUNITY MEDICINE">COMMUNITY MEDICINE</option>
+                                <option value="CORPORATE SERVICES & PARTNERSHIP UNIT">CORPORATE SERVICES & PARTNERSHIP UNIT</option>
+                                <option value="CTCHO BENIN">CTCHO BENIN</option>
+                                <option value="DA'S OFFICE">DA'S OFFICE</option>
+                                <option value="DCMAC (T & M)">DCMAC (T & M)</option>
+                                <option value="DCMAC OFFICE (RESEARCH ETHICS AND TRANING)">DCMAC OFFICE (RESEARCH ETHICS AND TRANING)</option>
+                                <option value="DCMAC'S OFFICE (CLINICAL SERVICE)">DCMAC'S OFFICE (CLINICAL SERVICE)</option>
+                                <option value="DENTAL CENTRE">DENTAL CENTRE</option>
+                                <option value="DENTISTRY">DENTISTRY</option>
+                                <option value="DIETETICS">DIETETICS</option>
+                                <option value="E.N.T">E.N.T</option>
+                                <option value="EMERGENCY MEDICINE">EMERGENCY MEDICINE</option>
+                                <option value="ENGINEERING">ENGINEERING</option>
+                                <option value="FAMILY DENTISTRY">FAMILY DENTISTRY</option>
+                                <option value="FAMILY MEDICINE">FAMILY MEDICINE</option>
+                                <option value="GAS UNIT">GAS UNIT</option>
+                                <option value="HAEMATOLOGY">HAEMATOLOGY</option>
+                                <option value="HORTICULTURE">HORTICULTURE</option>
+                                <option value="HUMAN RESOURCES">HUMAN RESOURCES</option>
+                                <option value="ICT UNIT">ICT UNIT</option>
+                                <option value="IHST">IHST</option>
+                                <option value="INSERVICE TRAINING">INSERVICE TRAINING</option>
+                                <option value="INSTITUTE OF HEALTH TECHNOLOGY">INSTITUTE OF HEALTH TECHNOLOGY</option>
+                                <option value="INTERNAL MEDICINE">INTERNAL MEDICINE</option>
+                                <option value="IPPIS">IPPIS</option>
+                                <option value="LEGAL MATTERS">LEGAL MATTERS</option>
+                                <option value="LINEN SERVICES">LINEN SERVICES</option>
+                                <option value="MEDICAL LABORATORY SERVICES">MEDICAL LABORATORY SERVICES</option>
+                                <option value="MEDICAL MICRO BIOLOGY">MEDICAL MICRO BIOLOGY</option>
+                                <option value="MEDICAL RECORDS">MEDICAL RECORDS</option>
+                                <option value="MEDICAL SOCIAL SERVICES">MEDICAL SOCIAL SERVICES</option>
+                                <option value="MENTAL HEALTH">MENTAL HEALTH</option>
+                                <option value="MOLECULAR DIAGNOSTICS & VIROLOGY LABORATORY">MOLECULAR DIAGNOSTICS & VIROLOGY LABORATORY</option>
+                                <option value="MORBID ANATOMY">MORBID ANATOMY</option>
+                                <option value="NHIA">NHIA</option>
+                                <option value="NHIS">NHIS</option>
+                                <option value="NURSING SERVICES">NURSING SERVICES</option>
+                                <option value="NUTRITION & DIETETICS">NUTRITION & DIETETICS</option>
+                                <option value="O.M.&P (DENTISTRY)">O.M.&P (DENTISTRY)</option>
+                                <option value="O.M.F.S (DENTISTRY)">O.M.F.S (DENTISTRY)</option>
+                                <option value="OBSTETRICS AND GYNAECOLOGY">OBSTETRICS AND GYNAECOLOGY</option>
+                                <option value="OCCUPATIONAL THERAPY">OCCUPATIONAL THERAPY</option>
+                                <option value="OPTHAMOLOGY">OPTHAMOLOGY</option>
+                                <option value="ORAL DIAGNOSIS">ORAL DIAGNOSIS</option>
+                                <option value="ORAL PATHOLOGY">ORAL PATHOLOGY</option>
+                                <option value="ORTHODONTICS UNIT">ORTHODONTICS UNIT</option>
+                                <option value="ORTHOPAEDICS AND TRAUMOTOLOGY">ORTHOPAEDICS AND TRAUMOTOLOGY</option>
+                                <option value="PAEDIATRIC DENTISTRY UNIT">PAEDIATRIC DENTISTRY UNIT</option>
+                                <option value="PENSION AND GRATUITY">PENSION AND GRATUITY</option>
+                                <option value="PERIODONTICS DENTISTRY">PERIODONTICS DENTISTRY</option>
+                                <option value="PHARMACY">PHARMACY</option>
+                                <option value="PHYSICAL PLANNING DIVISION">PHYSICAL PLANNING DIVISION</option>
+                                <option value="PLANNING RESEARCH AND STATISTICS">PLANNING RESEARCH AND STATISTICS</option>
+                                <option value="POST GRADUATE LIBRARY">POST GRADUATE LIBRARY</option>
+                                <option value="PREVENTIVE DENTISTRY">PREVENTIVE DENTISTRY</option>
+                                <option value="PROCUREMENT">PROCUREMENT</option>
+                                <option value="PROTOCOL">PROTOCOL</option>
+                                <option value="PROTOCOL UNIT (HEAD)">PROTOCOL UNIT (HEAD)</option>
+                                <option value="PSYCHIATRY">PSYCHIATRY</option>
+                                <option value="PUBLIC HEALTH AND COMMUNITY MEDICINE">PUBLIC HEALTH AND COMMUNITY MEDICINE</option>
+                                <option value="PUBLIC HEALTH NURSING">PUBLIC HEALTH NURSING</option>
+                                <option value="PUBLIC RELATION OFFICE">PUBLIC RELATION OFFICE</option>
+                                <option value="PYHSIOTHERAPHY">PYHSIOTHERAPHY</option>
+                                <option value="RADIOLOGY">RADIOLOGY</option>
+                                <option value="RADIOTHERAPY">RADIOTHERAPY</option>
+                                <option value="RADIOTHERAPY & CLINICAL ONCOLOGY">RADIOTHERAPY & CLINICAL ONCOLOGY</option>
+                                <option value="RESTORATIVE DENTISTRY">RESTORATIVE DENTISTRY</option>
+                                <option value="SCHOOL OF HEALTH INFORMATION MANAGEMENT">SCHOOL OF HEALTH INFORMATION MANAGEMENT</option>
+                                <option value="SCHOOL OF MIDWIFERY">SCHOOL OF MIDWIFERY</option>
+                                <option value="SCHOOL OF NURSING">SCHOOL OF NURSING</option>
+                                <option value="SCHOOL OF POST BASIC NURSING STUDIES">SCHOOL OF POST BASIC NURSING STUDIES</option>
+                                <option value="SERVICOM">SERVICOM</option>
+                                <option value="SOCIAL MEDIA UNIT">SOCIAL MEDIA UNIT</option>
+                                <option value="STOCK VERIFICATION UNIT">STOCK VERIFICATION UNIT</option>
+                                <option value="STORES AND SUPPLY">STORES AND SUPPLY</option>
+                                <option value="SURGERY">SURGERY</option>
+                                <option value="TRAINING SCHOOL">TRAINING SCHOOL</option>
+                                <option value="TRAINING UNIT">TRAINING UNIT</option>
+                                <option value="UBTH GRA ANEX">UBTH GRA ANEX</option>
+                                <option value="WORKS & MAINTENANCE">WORKS & MAINTENANCE</option>
+                            </select>
+                            <span asp-validation-for="Department" class="text-danger"></span>
+                        </div>
+
+                        <!-- Office / Room Input -->
+                        <div class="col-md-6">
+                            <label asp-for="Office" class="form-label fw-bold"></label>
+                            <input asp-for="Office" class="form-control" placeholder="e.g. Room 6, Ward 2" required />
+                            <span asp-validation-for="Office" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Issue" class="form-label fw-bold"></label>
+                        <textarea asp-for="Issue" class="form-control" rows="3" placeholder="Describe the issue (e.g. Unable to access EMR, Network switch down)" required></textarea>
+                        <span asp-validation-for="Issue" class="text-danger"></span>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="Priority" class="form-label fw-bold"></label>
+                            <select asp-for="Priority" class="form-select" asp-items="Html.GetEnumSelectList<UbthIctTicketing.Models.IncidentPriority>()">
+                            </select>
+                            <span asp-validation-for="Priority" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="ReportedBy" class="form-label fw-bold"></label>
+                            <input asp-for="ReportedBy" class="form-control" placeholder="e.g. Esther" required />
+                            <span asp-validation-for="ReportedBy" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <!-- Image Upload Section -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">📷 Incident Image Attachment</label>
+                        <div class="input-group">
+                            <input type="file" name="imageFile" id="imageFileInput" class="d-none" accept="image/*" onchange="previewImage(event)" />
+                            <button type="button" class="btn btn-outline-danger" onclick="document.getElementById('imageFileInput').click();">
+                                📂 Upload Incident Image
+                            </button>
+                            <span id="fileNameDisplay" class="form-control text-muted">No file selected</span>
+                        </div>
+                        <small class="text-muted">Click the button to choose a screenshot or photo from your computer or phone.</small>
+
+                        <!-- Preview Frame -->
+                        <div id="imageFrameContainer" class="mt-3 text-center p-3 border rounded bg-light d-none">
+                            <p class="text-muted small fw-bold mb-2">Selected Image Frame Preview:</p>
+                            <div class="d-inline-block p-2 bg-white rounded shadow-sm border">
+                                <img id="imageFramePreview" src="#" alt="Incident Image Preview" class="img-fluid rounded" style="max-height: 280px; object-fit: contain;" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mt-4">
+                        <a asp-action="Index" class="btn btn-outline-secondary">Back to Incident List</a>
+                        <button type="submit" class="btn btn-danger px-4">Submit Incident Report</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        function previewImage(event) {
+            const input = event.target;
+            const container = document.getElementById('imageFrameContainer');
+            const preview = document.getElementById('imageFramePreview');
+            const fileDisplay = document.getElementById('fileNameDisplay');
+
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                fileDisplay.textContent = file.name;
+
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    preview.src = e.target.result;
+                    container.classList.remove('d-none');
+                };
+                reader.readAsDataURL(file);
+            } else {
+                fileDisplay.textContent = "No file selected";
+                preview.src = "#";
+                container.classList.add('d-none');
+            }
+        }
+    </script>
+}

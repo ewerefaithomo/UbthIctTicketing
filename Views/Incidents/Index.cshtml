@@ -1,0 +1,197 @@
+﻿@model IEnumerable<UbthIctTicketing.Models.Incident>
+
+@{
+    ViewData["Title"] = "UBTH ICT Incident Tickets";
+    string userRole = ViewBag.UserRole ?? "support";
+    bool isSupportUser = userRole.Equals("support", StringComparison.OrdinalIgnoreCase);
+}
+
+<!-- Custom CSS for Blinking/Pulsing Danger Close Button -->
+<style>
+    @@keyframes pulseDanger {
+        0%
+
+    {
+        box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
+        opacity: 1;
+    }
+
+    50% {
+        box-shadow: 0 0 0 10px rgba(220, 53, 69, 0);
+        opacity: 0.8;
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
+        opacity: 1;
+    }
+
+    }
+
+    .btn-blinking-danger {
+        background-color: #dc3545;
+        color: #ffffff;
+        border-color: #dc3545;
+        animation: pulseDanger 1.2s infinite;
+        font-weight: bold;
+    }
+
+        .btn-blinking-danger:hover {
+            background-color: #bb2d3b;
+            color: #ffffff;
+        }
+</style>
+
+<!-- Header Bar with Top Right Login Status -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>UBTH ICT Helpdesk Log</h2>
+
+    <div class="d-flex align-items-center gap-2">
+        <!-- Top Right Login Status Indicator -->
+        <span class="badge bg-dark fs-6 px-3 py-2">
+            Logged in as: <strong class="text-warning">@userRole</strong>
+        </span>
+        <a asp-controller="Account" asp-action="Logout" class="btn btn-sm btn-outline-secondary">Logout</a>
+    </div>
+</div>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <!-- Report ICT Incident Button (Disabled if support) -->
+        @if (isSupportUser)
+        {
+            <button class="btn btn-danger" disabled title="Disabled for support staff user level">
+                + Report ICT Incident
+            </button>
+        }
+        else
+        {
+            <a asp-action="Create" class="btn btn-danger">+ Report ICT Incident</a>
+        }
+    </div>
+    <div>
+        <a asp-action="Dashboard" class="btn btn-primary">ICT Planning Dashboard</a>
+    </div>
+</div>
+
+<table class="table table-bordered table-striped">
+    <thead class="table-dark">
+        <tr>
+            <th>ID</th>
+            <th>Department / Office</th>
+            <th>Issue</th>
+            <th>Priority</th>
+            <th>Status</th>
+            <th>Assigned To</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <!-- Clickable Ticket ID -->
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.Id" class="fw-bold text-decoration-none">
+                        #@item.Id
+                    </a>
+                </td>
+                <td><strong>@item.Department</strong> (@item.Office)</td>
+                <td>@item.Issue</td>
+                <td>
+                    <span class="badge @(item.Priority == UbthIctTicketing.Models.IncidentPriority.High ? "bg-danger" : "bg-warning")">
+                        @item.Priority
+                    </span>
+                </td>
+                <td>
+                    <span class="badge @(item.Status == UbthIctTicketing.Models.IncidentStatus.Closed ? "bg-success" : "bg-secondary")">
+                        @item.Status
+                    </span>
+                </td>
+                <td>@(item.AssignedEngineer ?? "Unassigned")</td>
+                <td>
+                    <!-- View Details Action Link -->
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info text-dark">View</a>
+
+                    @if (item.Status == UbthIctTicketing.Models.IncidentStatus.Reported)
+                    {
+                        <!-- Assign Button (Disabled if support) -->
+                        if (isSupportUser)
+                        {
+                            <button class="btn btn-sm btn-outline-primary" disabled title="Disabled for support staff user level">Assign</button>
+                        }
+                        else
+                        {
+                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#assignModal-@item.Id">Assign</button>
+                        }
+                    }
+                    else if (item.Status == UbthIctTicketing.Models.IncidentStatus.InProgress)
+                    {
+                        <!-- Blinking Danger Close Ticket Button (Active until resolved) -->
+                        <button class="btn btn-sm btn-blinking-danger" data-bs-toggle="modal" data-bs-target="#closeModal-@item.Id">
+                            Close Ticket
+                        </button>
+                    }
+                </td>
+            </tr>
+
+            <!-- Assign Modal (Only rendered when enabled) -->
+            if (!isSupportUser && item.Status == UbthIctTicketing.Models.IncidentStatus.Reported)
+            {
+                <div class="modal fade" id="assignModal-@item.Id" tabindex="-1">
+                    <div class="modal-dialog">
+                        <form asp-action="Assign" method="post">
+                            <input type="hidden" name="id" value="@item.Id" />
+                            <div class="modal-content">
+                                <div class="modal-header"><h5 class="modal-title">Assign Incident #@item.Id</h5></div>
+                                <div class="modal-body">
+                                    <div class="mb-2">
+                                        <label class="form-label fw-bold">Team</label>
+                                        <select name="assignedTeam" class="form-select" required>
+                                            <option value="">-- Select ICT Team --</option>
+                                            <option value="A & E TEAM">A & E TEAM</option>
+                                            <option value="ADMIN TEAM">ADMIN TEAM</option>
+                                            <option value="C.B.T TEAM">C.B.T TEAM</option>
+                                            <option value="CENTRAL ADMIN, O & G, CDC TEAM">CENTRAL ADMIN, O & G, CDC TEAM</option>
+                                            <option value="C.O.P.D TEAM">C.O.P.D TEAM</option>
+                                            <option value="DATA MANAGEMENT TEAM">DATA MANAGEMENT TEAM</option>
+                                            <option value="DENTISTRY, WARDS, GERIATRICS & LABS TEAM">DENTISTRY, WARDS, GERIATRICS & LABS TEAM</option>
+                                            <option value="GPC TEAM">GPC TEAM</option>
+                                            <option value="NETWORKING TEAM">NETWORKING TEAM</option>
+                                            <option value="POP & CHER TEAM">POP & CHER TEAM</option>
+                                            <option value="PRINTER & COPIER TEAM">PRINTER & COPIER TEAM</option>
+                                            <option value="RADIOLOGY & REVENUE TEAM">RADIOLOGY & REVENUE TEAM</option>
+                                            <option value="REPAIRS (CLINICAL TEAM)">REPAIRS (CLINICAL TEAM)</option>
+                                            <option value="REPAIRS (NON CLINICAL TEAM)">REPAIRS (NON CLINICAL TEAM)</option>
+                                            <option value="SOFTWARE/WEBSITE/PORTAL TEAM">SOFTWARE/WEBSITE/PORTAL TEAM</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-2"><label class="form-label fw-bold">Support Name</label><input name="assignedEngineer" class="form-control" required /></div>
+                                    <div class="mb-2"><label class="form-label fw-bold">ETA</label><input name="estimatedTime" class="form-control" value="10 minutes" /></div>
+                                </div>
+                                <div class="modal-footer"><button type="submit" class="btn btn-primary">Assign Ticket</button></div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            }
+
+            <!-- Close Modal -->
+            <div class="modal fade" id="closeModal-@item.Id" tabindex="-1">
+                <div class="modal-dialog">
+                    <form asp-action="Close" method="post">
+                        <input type="hidden" name="id" value="@item.Id" />
+                        <div class="modal-content">
+                            <div class="modal-header"><h5 class="modal-title">Close Incident #@item.Id</h5></div>
+                            <div class="modal-body">
+                                <div class="mb-2"><label class="form-label fw-bold">Resolution</label><textarea name="resolution" class="form-control" required></textarea></div>
+                                <div class="mb-2"><label class="form-label fw-bold">Confirmed By (User/Staff)</label><input name="confirmedBy" class="form-control" required /></div>
+                            </div>
+                            <div class="modal-footer"><button type="submit" class="btn btn-success">Mark Resolved</button></div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        }
+    </tbody>
+</table>

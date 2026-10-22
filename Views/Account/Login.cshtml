@@ -1,0 +1,66 @@
+﻿@{
+    Layout = null; // Clean login layout without top nav bar
+    ViewData["Title"] = "UBTH ICT Helpdesk Login";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <style>
+        body {
+            background-color: #f8f9fa;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 400px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="card shadow border-0 login-card">
+        <div class="card-header bg-danger text-white text-center py-3">
+            <h4 class="mb-0 fw-bold">UBTH ICT Helpdesk</h4>
+            <small>System Authentication</small>
+        </div>
+        <div class="card-body p-4">
+            @if (ViewBag.Error != null)
+            {
+                <div class="alert alert-danger py-2" role="alert">
+                    @ViewBag.Error
+                </div>
+            }
+
+            <form asp-controller="Account" asp-action="Login" method="post">
+                @Html.AntiForgeryToken()
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Username</label>
+                    <input type="text" name="username" class="form-control" placeholder="Enter username" required autofocus />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Password</label>
+                    <input type="password" name="password" class="form-control" placeholder="Enter password" required />
+                </div>
+
+                <div class="d-grid gap-2 mt-4">
+                    <button type="submit" class="btn btn-danger btn-block fw-bold py-2">Log In</button>
+                </div>
+            </form>
+        </div>
+        <div class="card-footer text-center text-muted py-2 bg-light">
+            <small>&copy; UBTH ICT Department</small>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,238 @@
+﻿@using System.Text.Json
+
+@{
+    ViewData["Title"] = "ICT Management Dashboard";
+
+    // Serialize dynamic ViewBag data to JSON safely for Chart.js rendering
+    var deptReportList = ViewBag.DepartmentReport;
+    var jsonDeptLabels = JsonSerializer.Serialize(((IEnumerable<dynamic>)deptReportList).Select(d => (string)d.Department));
+    var jsonDeptCounts = JsonSerializer.Serialize(((IEnumerable<dynamic>)deptReportList).Select(d => (int)d.Count));
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-0">UBTH ICT Analytics & Planning Dashboard</h2>
+        <small class="text-muted">
+            @(string.IsNullOrEmpty(ViewBag.StartDate) && string.IsNullOrEmpty(ViewBag.EndDate)
+                        ? "Showing Cumulative (All-Time) Records"
+                        : $"Filtered Period: {ViewBag.StartDate ?? "Earliest"} to {ViewBag.EndDate ?? "Latest"}")
+        </small>
+    </div>
+    <div>
+        <button id="toggleChartBtn" class="btn btn-outline-primary" onclick="toggleChartView()">
+            📊 View Chart
+        </button>
+        <a asp-action="Index" class="btn btn-secondary ms-2">← Back to Ticket List</a>
+    </div>
+</div>
+
+<!-- Date Range Filter Form Card -->
+<div class="card shadow-sm mb-4 border-0 bg-light">
+    <div class="card-body">
+        <form asp-action="Dashboard" method="get" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label fw-bold text-secondary">Start Date</label>
+                <input type="date" name="startDate" class="form-control" value="@ViewBag.StartDate" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label fw-bold text-secondary">End Date</label>
+                <input type="date" name="endDate" class="form-control" value="@ViewBag.EndDate" />
+            </div>
+            <div class="col-md-4 d-flex gap-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    🔍 View Periodic Report
+                </button>
+                @if (!string.IsNullOrEmpty(ViewBag.StartDate) || !string.IsNullOrEmpty(ViewBag.EndDate))
+                {
+                    <a asp-action="Dashboard" class="btn btn-outline-secondary" title="Reset to view all data">
+                        Reset
+                    </a>
+                }
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Key Performance Indicators (KPI Cards) -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card bg-primary text-white shadow-sm p-3 border-0">
+            <h5 class="card-title text-white-50">Total Incidents</h5>
+            <h2 class="display-6 fw-bold mb-0">@ViewBag.TotalIncidents</h2>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-warning text-dark shadow-sm p-3 border-0">
+            <h5 class="card-title text-dark-50">Open / In Progress</h5>
+            <h2 class="display-6 fw-bold mb-0">@ViewBag.OpenIncidents</h2>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-success text-white shadow-sm p-3 border-0">
+            <h5 class="card-title text-white-50">Resolved Tickets</h5>
+            <h2 class="display-6 fw-bold mb-0">@ViewBag.ClosedIncidents</h2>
+        </div>
+    </div>
+</div>
+
+<!-- Visual Analytics Section (Initially Hidden, Toggled by Button) -->
+<div id="chartSection" class="card shadow-sm mb-4 border-0 d-none">
+    <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">📈 Graphical Incident Analytics</h5>
+        <span class="badge bg-primary">Dynamic Chart View</span>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <!-- Department Breakdown Bar Chart -->
+            <div class="col-md-8 mb-4 mb-md-0">
+                <h6 class="text-muted fw-bold text-center mb-3">Complaints Hotspots by Department</h6>
+                <div style="position: relative; height:320px;">
+                    <canvas id="departmentChart"></canvas>
+                </div>
+            </div>
+            <!-- Ticket Status Distribution Doughnut Chart -->
+            <div class="col-md-4">
+                <h6 class="text-muted fw-bold text-center mb-3">Overall Resolution Status</h6>
+                <div style="position: relative; height:320px;">
+                    <canvas id="statusChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tabular Incident Hotspot Breakdown -->
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-header bg-light">
+        <h5 class="mb-0 text-dark">Incidents Breakdown by Department (Hotspots)</h5>
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-dark">
+                <tr>
+                    <th>Department</th>
+                    <th class="text-end">Total Complaints Logged</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (deptReportList != null && ((IEnumerable<dynamic>)deptReportList).Any())
+                {
+                    foreach (var dept in deptReportList)
+                    {
+                        <tr>
+                            <td><strong class="text-secondary">@dept.Department</strong></td>
+                            <td class="text-end">
+                                <span class="badge bg-danger fs-6 px-3 py-2">@dept.Count</span>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="2" class="text-center text-muted py-4">
+                            No incident records found for the selected period.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Chart.js Library via CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    let departmentChartInstance = null;
+    let statusChartInstance = null;
+
+    function toggleChartView() {
+        const chartContainer = document.getElementById('chartSection');
+        const btn = document.getElementById('toggleChartBtn');
+
+        if (chartContainer.classList.contains('d-none')) {
+            chartContainer.classList.remove('d-none');
+            btn.innerHTML = '📋 Hide Chart';
+            btn.classList.replace('btn-outline-primary', 'btn-primary');
+
+            // Render/initialize charts when displayed
+            if (!departmentChartInstance) {
+                renderCharts();
+            }
+        } else {
+            chartContainer.classList.add('d-none');
+            btn.innerHTML = '📊 View Chart';
+            btn.classList.replace('btn-primary', 'btn-outline-primary');
+        }
+    }
+
+    function renderCharts() {
+        // Retrieve backend dynamic data serialized for JavaScript
+        const deptLabels = @Html.Raw(jsonDeptLabels);
+        const deptData = @Html.Raw(jsonDeptCounts);
+        const openIncidents = @ViewBag.OpenIncidents;
+        const closedIncidents = @ViewBag.ClosedIncidents;
+
+        // 1. Department Hotspot Bar Chart
+        const ctxDept = document.getElementById('departmentChart').getContext('2d');
+        departmentChartInstance = new Chart(ctxDept, {
+            type: 'bar',
+            data: {
+                labels: deptLabels,
+                datasets: [{
+                    label: 'Incidents Logged',
+                    data: deptData,
+                    backgroundColor: 'rgba(220, 53, 69, 0.75)',
+                    borderColor: 'rgba(220, 53, 69, 1)',
+                    borderWidth: 1.5,
+                    borderRadius: 6,
+                    hoverBackgroundColor: 'rgba(220, 53, 69, 0.95)'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { stepSize: 1 }
+                    }
+                }
+            }
+        });
+
+        // 2. Status Distribution Doughnut Chart
+        const ctxStatus = document.getElementById('statusChart').getContext('2d');
+        statusChartInstance = new Chart(ctxStatus, {
+            type: 'doughnut',
+            data: {
+                labels: ['Open / In Progress', 'Resolved'],
+                datasets: [{
+                    data: [openIncidents, closedIncidents],
+                    backgroundColor: [
+                        'rgba(255, 193, 7, 0.85)',
+                        'rgba(25, 135, 84, 0.85)'
+                    ],
+                    borderColor: [
+                        '#ffc107',
+                        '#198754'
+                    ],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    }
+</script>
